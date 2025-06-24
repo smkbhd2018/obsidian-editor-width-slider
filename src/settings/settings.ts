@@ -14,7 +14,8 @@ export const DEFAULT_SETTINGS: ImageWidthSliderSettings = {
         sliderPercentageDefault: '50',
         sliderWidth: '150',
         unit: '%',
-        sliderEnabled: true
+        sliderEnabled: true,
+        excludedParentClasses: 'oit'
 };
 // ---------------------------- Storing Information ----------------------------
 
@@ -63,6 +64,18 @@ export class ImageWidthSliderSettingTab extends PluginSettingTab {
                                 .setValue(this.plugin.settings.unit)
                                 .onChange(async (value) => {
                                         this.plugin.settings.unit = value;
+                                        this.plugin.updateImageStyle();
+                                        await this.plugin.saveSettings();
+                                }));
+
+                new Setting(containerEl)
+                        .setName('Excluded Parent Classes')
+                        .setDesc('Comma-separated class names of parents whose images should not be resized')
+                        .addText(text => text
+                                .setPlaceholder('class1, class2')
+                                .setValue(this.plugin.settings.excludedParentClasses)
+                                .onChange(async (value) => {
+                                        this.plugin.settings.excludedParentClasses = value;
                                         this.plugin.updateImageStyle();
                                         await this.plugin.saveSettings();
                                 }));

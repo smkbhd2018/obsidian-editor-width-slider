@@ -185,10 +185,39 @@ export default class ImageWidthSlider extends Plugin {
                 const styleElement = document.getElementById('additional-image-css');
                 if (!styleElement) throw "additional-image-css element not found!";
                 const unit = this.settings.unit;
+                const excludedClasses = this.settings.excludedParentClasses
+                        .split(',')
+                        .map((c) => c.trim())
+                        .filter((c) => c.length > 0);
+                if (!excludedClasses.includes('oit')) {
+                        excludedClasses.push('oit');
+                }
+                const excludeRules = excludedClasses
+                        .map(
+                                (cls) =>
+                                        `.image-width-slider-target .${cls} img {\n                                width: auto !important;\n                        }`
+                        )
+                        .join('\n');
+                        .split(',')
+                        .map((c) => c.trim())
+                        .filter((c) => c.length > 0);
+                if (!excludedClasses.includes('oit')) {
+                        excludedClasses.push('oit');
+                }
+                const excludeRules = excludedClasses
+                        .map(
+                                (cls) =>
+                                        `.image-width-slider-target .${cls} img {\n                                width: auto !important;\n                        }`
+                        )
+                        .join('\n');
+                        .filter(c => c);
+                if (!excludedClasses.includes('oit')) excludedClasses.push('oit');
+                const excludeRules = excludedClasses.map(cls => `.image-width-slider-target .${cls} img {\n                                width: auto !important;\n                        }`).join('\n');
                 styleElement.innerText = `
                         .image-width-slider-target img {
                                 width: ${this.settings.sliderPercentage}${unit} !important;
                         }
+                        ${excludeRules}
                 `;
         }
 
@@ -201,10 +230,17 @@ export default class ImageWidthSlider extends Plugin {
                 const styleElement = document.getElementById('additional-image-css');
                 if (!styleElement) throw "additional-image-css element not found!";
                 const unit = this.settings.unit;
+                const excludedClasses = this.settings.excludedParentClasses
+                        .split(',')
+                        .map(c => c.trim())
+                        .filter(c => c);
+                if (!excludedClasses.includes('oit')) excludedClasses.push('oit');
+                const excludeRules = excludedClasses.map(cls => `.image-width-slider-target .${cls} img {\n                                width: auto !important;\n                        }`).join('\n');
                 styleElement.innerText = `
                         .image-width-slider-target img {
                                 width: ${imageWidth}${unit} !important;
                         }
+                        ${excludeRules}
                 `;
         }
 

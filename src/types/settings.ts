@@ -5,4 +5,5 @@ export interface ImageWidthSliderSettings {
         sliderWidth: string;
         unit: string;
         sliderEnabled: boolean;
+        excludedParentClasses: string;
 }
