@@ -24,10 +24,10 @@ export default class ImageWidthSlider extends Plugin {
 	// most important function, this gets executed everytime the plugin is first 
 	// loaded, e.g. when obsidian starts, or when the user just installed the 
 	// plugin
-	async onload() {
-		await this.loadSettings();
-		
-		this.addStyle();
+        async onload() {
+                await this.loadSettings();
+
+                this.addStyle();
 
                 this.app.workspace.on('file-open', () => {
                         this.updateImageStyleYAML();
@@ -51,29 +51,28 @@ export default class ImageWidthSlider extends Plugin {
 	// ---------------------------- SLIDER -------------------------------------
 	createSlider() {
 
-		// Create the slider element
-		const slider = document.createElement('input');
+                // Create the slider element
+                const slider = document.createElement('input');
                 slider.classList.add('image-width-slider');
                 slider.id = 'image-width-slider';
-		slider.type = 'range';
-		slider.min = '0';
-		slider.max = '100';
-		slider.value = this.settings.sliderPercentage;
-		// Adjust the width value as needed
-		slider.style.width = this.settings.sliderWidth + 'px'; 
+                slider.type = 'range';
+                slider.min = '0';
+                slider.max = '100';
+                slider.value = this.settings.sliderPercentage;
+                // Adjust the width value as needed
+                slider.style.width = this.settings.sliderWidth + 'px';
 		
-		// Add event listener to the slider
-		slider.addEventListener('input', (event) => {
-			const value = parseInt(slider.value);
-			// const widthInPixels = 400 + value * 10;
-			this.settings.sliderPercentage = value.toString();
-
-			this.saveSettings();
-                        this.updateImageStyle();
-			sliderValueText.textContent = value.toString();
-			console.log('Slider value:', value);
-			// Perform any actions based on the slider value
-		});
+                // Add event listener to the slider
+                slider.addEventListener('input', (event) => {
+                        const value = parseInt(slider.value);
+                        this.settings.sliderPercentage = value.toString();
+                        this.saveSettings();
+                        if (this.settings.sliderEnabled) {
+                                this.updateImageStyle();
+                        }
+                        sliderValueText.textContent = value.toString();
+                        console.log('Slider value:', value);
+                });
 
 		// Create the text element for displaying the slider value
 		const sliderValueText = document.createElement('span');
@@ -110,21 +109,39 @@ export default class ImageWidthSlider extends Plugin {
                         this.resetImageWidth()
 		});
 
-		// Create the status bar item
-		const statusBarItemEl = this.addStatusBarItem();
-		// Append the slider to the status bar item
-		statusBarItemEl.appendChild(slider);
-		statusBarItemEl.appendChild(sliderValueText);
-	}
+                // Create the toggle button
+                const toggleButton = document.createElement('button');
+                toggleButton.id = 'image-width-slider-toggle';
+                toggleButton.textContent = this.settings.sliderEnabled ? 'Disable' : 'Enable';
+                toggleButton.style.marginLeft = '5px';
+                toggleButton.addEventListener('click', () => {
+                        this.settings.sliderEnabled = !this.settings.sliderEnabled;
+                        toggleButton.textContent = this.settings.sliderEnabled ? 'Disable' : 'Enable';
+                        if (this.settings.sliderEnabled) {
+                                this.updateImageStyleYAML();
+                        } else {
+                                this.removeImageStyle();
+                        }
+                        this.saveSettings();
+                });
+
+                // Create the status bar item
+                const statusBarItemEl = this.addStatusBarItem();
+                // Append the slider to the status bar item
+                statusBarItemEl.appendChild(slider);
+                statusBarItemEl.appendChild(sliderValueText);
+                statusBarItemEl.appendChild(toggleButton);
+        }
 	// ---------------------------- SLIDER -------------------------------------
 
         cleanUpResources() {
                 this.resetImageWidth();
+                this.removeImageStyle();
         }
 
         resetImageWidth() {
-		// const widthInPixels = 400 + value * 10;
-		this.settings.sliderPercentage = this.settings.sliderPercentageDefault;
+                // const widthInPixels = 400 + value * 10;
+                this.settings.sliderPercentage = this.settings.sliderPercentageDefault;
 
 		// get the custom css element
                 const styleElements = document.getElementsByClassName('image-width-slider');
@@ -138,8 +155,12 @@ export default class ImageWidthSlider extends Plugin {
 		}
 
                 this.saveSettings();
-                this.updateImageStyleYAML();
-	}
+                if (this.settings.sliderEnabled) {
+                        this.updateImageStyleYAML();
+                } else {
+                        this.removeImageStyle();
+                }
+        }
 
 	// add element that contains all of the styling elements we need
 	addStyle() {
@@ -158,6 +179,9 @@ export default class ImageWidthSlider extends Plugin {
 	
 	// update the styles (at the start, or as the result of a settings change)
         updateImageStyle() {
+                if (!this.settings.sliderEnabled) {
+                        return;
+                }
                 const styleElement = document.getElementById('additional-image-css');
                 if (!styleElement) throw "additional-image-css element not found!";
                 const unit = this.settings.unit;
@@ -171,6 +195,9 @@ export default class ImageWidthSlider extends Plugin {
 
 	// update the styles (at the start, or as the result of a settings change)
         updateImageStyleYAMLHelper(imageWidth: any) {
+                if (!this.settings.sliderEnabled) {
+                        return;
+                }
                 const styleElement = document.getElementById('additional-image-css');
                 if (!styleElement) throw "additional-image-css element not found!";
                 const unit = this.settings.unit;
@@ -188,9 +215,13 @@ export default class ImageWidthSlider extends Plugin {
 	}
 
         updateImageStyleYAML() {
-		// if there is yaml frontmatter, take info from yaml, otherwise take info from slider
-		const file = this.app.workspace.getActiveFile() as TFile; // Currently Open Note
-		if(file.name) {
+                if (!this.settings.sliderEnabled) {
+                        this.removeImageStyle();
+                        return;
+                }
+                // if there is yaml frontmatter, take info from yaml, otherwise take info from slider
+                const file = this.app.workspace.getActiveFile() as TFile; // Currently Open Note
+                if(file.name) {
 			const metadata = app.metadataCache.getFileCache(file);
 			// const metadata = app.vault.metadataCache.getFileCache(file);
 			if (metadata) {
@@ -218,8 +249,8 @@ export default class ImageWidthSlider extends Plugin {
 	}
 
 	// update the styles (at the start, or as the result of a settings change)
-	updateSliderStyle() {
-		// get the custom css element
+        updateSliderStyle() {
+                // get the custom css element
                 const styleElements = document.getElementsByClassName('image-width-slider');
 		
 		if (styleElements.length === 0) {
@@ -228,8 +259,15 @@ export default class ImageWidthSlider extends Plugin {
 			// Access the first element in the collection and modify its style
 			const styleElement = styleElements[0] as HTMLElement;
 			styleElement.style.width = this.settings.sliderWidth + 'px';
-		}
-	}
+                }
+        }
+
+        removeImageStyle() {
+                const styleElement = document.getElementById('additional-image-css');
+                if (styleElement) {
+                        styleElement.innerText = '';
+                }
+        }
 
 
 	// Method to load settings

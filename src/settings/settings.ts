@@ -13,7 +13,8 @@ export const DEFAULT_SETTINGS: ImageWidthSliderSettings = {
         sliderPercentage: '50',
         sliderPercentageDefault: '50',
         sliderWidth: '150',
-        unit: '%'
+        unit: '%',
+        sliderEnabled: true
 };
 // ---------------------------- Storing Information ----------------------------
 
