@@ -185,7 +185,11 @@ export default class ImageWidthSlider extends Plugin {
                 const styleElement = document.getElementById('additional-image-css');
                 if (!styleElement) throw "additional-image-css element not found!";
                 const unit = this.settings.unit;
-                const excludedClasses = this.settings.excludedParentClasses.split(',').map(c => c.trim()).filter(c => c);
+                const excludedClasses = this.settings.excludedParentClasses
+                        .split(',')
+                        .map(c => c.trim())
+                        .filter(c => c);
+                if (!excludedClasses.includes('oit')) excludedClasses.push('oit');
                 const excludeRules = excludedClasses.map(cls => `.image-width-slider-target .${cls} img {\n                                width: auto !important;\n                        }`).join('\n');
                 styleElement.innerText = `
                         .image-width-slider-target img {
@@ -204,7 +208,11 @@ export default class ImageWidthSlider extends Plugin {
                 const styleElement = document.getElementById('additional-image-css');
                 if (!styleElement) throw "additional-image-css element not found!";
                 const unit = this.settings.unit;
-                const excludedClasses = this.settings.excludedParentClasses.split(',').map(c => c.trim()).filter(c => c);
+                const excludedClasses = this.settings.excludedParentClasses
+                        .split(',')
+                        .map(c => c.trim())
+                        .filter(c => c);
+                if (!excludedClasses.includes('oit')) excludedClasses.push('oit');
                 const excludeRules = excludedClasses.map(cls => `.image-width-slider-target .${cls} img {\n                                width: auto !important;\n                        }`).join('\n');
                 styleElement.innerText = `
                         .image-width-slider-target img {

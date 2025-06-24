@@ -15,7 +15,7 @@ export const DEFAULT_SETTINGS: ImageWidthSliderSettings = {
         sliderWidth: '150',
         unit: '%',
         sliderEnabled: true,
-        excludedParentClasses: ''
+        excludedParentClasses: 'oit'
 };
 // ---------------------------- Storing Information ----------------------------
 
