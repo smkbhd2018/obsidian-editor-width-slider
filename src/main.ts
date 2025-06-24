@@ -4,12 +4,12 @@ import {
 
 
 import {
-	DEFAULT_SETTINGS,
-	EditorWidthSliderSettingTab
+        DEFAULT_SETTINGS,
+        ImageWidthSliderSettingTab
 } from "./settings/settings";
 
-import { 
-	EditorWidthSliderSettings 
+import {
+        ImageWidthSliderSettings
 } from './types/settings';
 
 
@@ -18,8 +18,8 @@ import {
 } from './modal/warning';
 
 // ---------------------------- Plugin Class -----------------------------------
-export default class EditorWidthSlider extends Plugin {
-	settings: EditorWidthSliderSettings;
+export default class ImageWidthSlider extends Plugin {
+        settings: ImageWidthSliderSettings;
 
 	// most important function, this gets executed everytime the plugin is first 
 	// loaded, e.g. when obsidian starts, or when the user just installed the 
@@ -29,13 +29,15 @@ export default class EditorWidthSlider extends Plugin {
 		
 		this.addStyle();
 
-		this.app.workspace.on('file-open', () => {
-			this.updateEditorStyleYAML();
-		});
+                this.app.workspace.on('file-open', () => {
+                        this.updateImageStyleYAML();
+                });
 
-		this.createSlider();
+                this.createSlider();
 
-		this.addSettingTab(new EditorWidthSliderSettingTab(this.app, this));
+                this.addSettingTab(new ImageWidthSliderSettingTab(this.app, this));
+
+                this.updateImageStyleYAML();
 
 	}
 
@@ -45,7 +47,7 @@ export default class EditorWidthSlider extends Plugin {
 	// }
 
 	onunload() {
-		this.cleanUpResources();
+                this.cleanUpResources();
 	}
 	
 	// ---------------------------- SLIDER -------------------------------------
@@ -53,33 +55,31 @@ export default class EditorWidthSlider extends Plugin {
 
 		// Create the slider element
 		const slider = document.createElement('input');
-		slider.classList.add('editor-width-slider');
-		slider.id = 'editor-width-slider';
-		slider.type = 'range';
-		slider.min = '0';
-		slider.max = '100';
-		slider.value = this.settings.sliderPercentage;
+                slider.classList.add('image-width-slider');
+                slider.id = 'image-width-slider';
+                slider.type = 'range';
+                slider.min = '0';
+                slider.max = this.settings.sliderUnit === 'px' ? '800' : '100';
+                slider.value = this.settings.sliderPercentage;
 		// Adjust the width value as needed
 		slider.style.width = this.settings.sliderWidth + 'px'; 
 		
 		// Add event listener to the slider
-		slider.addEventListener('input', (event) => {
-			const value = parseInt(slider.value);
-			// const widthInPixels = 400 + value * 10;
-			this.settings.sliderPercentage = value.toString();
+                slider.addEventListener('input', () => {
+                        const value = parseInt(slider.value);
+                        this.settings.sliderPercentage = value.toString();
 
-			this.saveSettings();
-			this.updateEditorStyle();
-			sliderValueText.textContent = value.toString();
-			console.log('Slider value:', value);
-			// Perform any actions based on the slider value
-		});
+                        this.saveSettings();
+                        this.updateImageStyle();
+                        sliderValueText.textContent = `${value}${this.settings.sliderUnit}`;
+                        console.log('Slider value:', value);
+                });
 
 		// Create the text element for displaying the slider value
 		const sliderValueText = document.createElement('span');
-		sliderValueText.textContent = slider.value;
-		sliderValueText.classList.add('editor-width-slider-value');
-		sliderValueText.id = 'editor-width-slider-value';
+                sliderValueText.textContent = `${slider.value}${this.settings.sliderUnit}`;
+                sliderValueText.classList.add('image-width-slider-value');
+                sliderValueText.id = 'image-width-slider-value';
 
 		// Add the CSS properties to the span element
 		sliderValueText.style.color = 'white';
@@ -107,7 +107,7 @@ export default class EditorWidthSlider extends Plugin {
 
 		// Add a click event listener to the slider value text
 		sliderValueText.addEventListener('click', () => {
-			this.resetEditorWidth()
+                        this.resetImageWidth()
 		});
 
 		// Create the status bar item
@@ -118,86 +118,84 @@ export default class EditorWidthSlider extends Plugin {
 	}
 	// ---------------------------- SLIDER -------------------------------------
 
-	cleanUpResources() {
-		this.resetEditorWidth();
-	}
+        cleanUpResources() {
+                this.resetImageWidth();
+        }
 
-	resetEditorWidth() {
+        resetImageWidth() {
 		// const widthInPixels = 400 + value * 10;
 		this.settings.sliderPercentage = this.settings.sliderPercentageDefault;
 
 		// get the custom css element
-		const styleElements = document.getElementsByClassName('editor-width-slider');
-		const slider = document.getElementById('editor-width-slider') as HTMLInputElement;
-		const sliderValue = document.getElementById('editor-width-slider-value') as HTMLInputElement;
+                const styleElements = document.getElementsByClassName('image-width-slider');
+                const slider = document.getElementById('image-width-slider') as HTMLInputElement;
+                const sliderValue = document.getElementById('image-width-slider-value') as HTMLInputElement;
 		if (slider) {
 			if (sliderValue) {
 				slider.value = this.settings.sliderPercentageDefault;
-				sliderValue.textContent = this.settings.sliderPercentageDefault.toString();
+                                sliderValue.textContent = `${this.settings.sliderPercentageDefault}${this.settings.sliderUnit}`;
 			}
 		}
 
-		this.saveSettings();
-		this.updateEditorStyleYAML();
+                this.saveSettings();
+                this.updateImageStyleYAML();
 	}
 
 	// add element that contains all of the styling elements we need
 	addStyle() {
 		// add a css block for our settings-dependent styles
-		const css = document.createElement('style');
-		css.id = 'additional-editor-css';
-		document.getElementsByTagName("head")[0].appendChild(css);
+                const css = document.createElement('style');
+                css.id = 'additional-image-css';
+                document.getElementsByTagName("head")[0].appendChild(css);
 
-		// add the main class
-		document.body.classList.add('additional-editor-css');
+                // add the main class
+                document.body.classList.add('image-width-slider-active');
 
 		// update the style with the settings-dependent styles
-		// this.updateEditorStyle();
+        // this.updateImageStyle();
 	}
 
 	
 	// update the styles (at the start, or as the result of a settings change)
-	updateEditorStyle() {
+        updateImageStyle() {
 		// get the custom css element
-		const styleElement = document.getElementById('additional-editor-css');
-		if (!styleElement) throw "additional-editor-css element not found!";
+                const styleElement = document.getElementById('additional-image-css');
+                if (!styleElement) throw "additional-image-css element not found!";
 		else {
 
-		styleElement.innerText = `
-			body {
-   				--line-width: calc(700px + 10 * ${this.settings.sliderPercentage}px) !important;
-			  	--file-line-width: calc(700px + 10 * ${this.settings.sliderPercentage}px) !important;
-			}
-		`;
+                styleElement.innerText = `
+                        body.image-width-slider-active .markdown-preview-view img {
+                                width: ${this.settings.sliderPercentage}${this.settings.sliderUnit} !important;
+                        }
+                `;
 
 		}
 	}
 
 
 	// update the styles (at the start, or as the result of a settings change)
-	updateEditorStyleYAMLHelper(editorWidth: any) {
+        updateImageStyleYAMLHelper(imageWidth: any) {
 		// get the custom css element
-		const styleElement = document.getElementById('additional-editor-css');
-		if (!styleElement) throw "additional-editor-css element not found!";
+                const styleElement = document.getElementById('additional-image-css');
+                if (!styleElement) throw "additional-image-css element not found!";
 		else {
 
-		styleElement.innerText = `
-			body {
-   				--line-width: calc(100px + ${editorWidth}vw) !important;
-			  	--file-line-width: calc(100px + ${editorWidth}vw) !important;
-			}
-		`;
+                styleElement.innerText = `
+                        body.image-width-slider-active .markdown-preview-view img {
+                                width: ${imageWidth}${this.settings.sliderUnit} !important;
+                        }
+                `;
 
 		}
 	}
 
-	pattern = /^(?:[0-9]{1,2}|100)$/;
+        pattern = /^[0-9]{1,3}$/;
 
 	validateString(inputString: string): boolean {
 		return this.pattern.test(inputString);
 	}
 
-	updateEditorStyleYAML() {
+        updateImageStyleYAML() {
 		// if there is yaml frontmatter, take info from yaml, otherwise take info from slider
 		const file = this.app.workspace.getActiveFile() as TFile; // Currently Open Note
 		if(file.name) {
@@ -206,21 +204,21 @@ export default class EditorWidthSlider extends Plugin {
 			if (metadata) {
 				if (metadata.frontmatter) {
 					try {
-						if (metadata.frontmatter["editor-width"]) {
-							if (this.validateString(metadata.frontmatter["editor-width"])) {
-								this.updateEditorStyleYAMLHelper(metadata.frontmatter["editor-width"]);
-							} else {
-								new WarningModal(this.app).open();
-								throw new Error("Editor width must be a number from 0 to 100.");
-							}
-						} else {
-							this.updateEditorStyle();
-						}
-					} catch (e) {
+                                                if (metadata.frontmatter["image-width"]) {
+                                                        if (this.validateString(metadata.frontmatter["image-width"])) {
+                                                                this.updateImageStyleYAMLHelper(metadata.frontmatter["image-width"]);
+                                                        } else {
+                                                                new WarningModal(this.app).open();
+                                                                throw new Error("Image width must be a number.");
+                                                        }
+                                                } else {
+                                                        this.updateImageStyle();
+                                                }
+                                        } catch (e) {
 						console.error("Error:", e.message);
 					}
 				} else {
-					this.updateEditorStyle();
+                                        this.updateImageStyle();
 				}
 			}
 		}
@@ -228,18 +226,23 @@ export default class EditorWidthSlider extends Plugin {
 	}
 
 	// update the styles (at the start, or as the result of a settings change)
-	updateSliderStyle() {
-		// get the custom css element
-		const styleElements = document.getElementsByClassName('editor-width-slider');
-		
-		if (styleElements.length === 0) {
-			throw new Error("editor-width-slider-value element not found!");
-		} else {
-			// Access the first element in the collection and modify its style
-			const styleElement = styleElements[0] as HTMLElement;
-			styleElement.style.width = this.settings.sliderWidth + 'px';
-		}
-	}
+        updateSliderStyle() {
+                const styleElements = document.getElementsByClassName('image-width-slider');
+
+                if (styleElements.length === 0) {
+                        throw new Error("image-width-slider-value element not found!");
+                } else {
+                        const styleElement = styleElements[0] as HTMLInputElement;
+                        styleElement.style.width = this.settings.sliderWidth + 'px';
+                        styleElement.max = this.settings.sliderUnit === 'px' ? '800' : '100';
+                }
+
+                const textElement = document.getElementById('image-width-slider-value');
+                if (textElement) {
+                        textElement.textContent = `${this.settings.sliderPercentage}${this.settings.sliderUnit}`;
+                }
+                this.updateImageStyle();
+        }
 
 
 	// Method to load settings

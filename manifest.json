@@ -1,9 +1,9 @@
 {
-	"id": "editor-width-slider",
-	"name": "Editor Width Slider",
+       "id": "image-width-slider",
+       "name": "Image Width Slider",
 	"version": "1.0.5",
 	"minAppVersion": "0.15.0",
-	"description": "Customize Obsidian's editor width with a slider for a tailored editing experience.",
+       "description": "Resize images in your notes with an easy to use slider.",
 	"author": "@MugishoMp",
 	"authorUrl": "https://github.com/MugishoMp",
 	"fundingUrl": "https://www.paypal.com/donate/?hosted_button_id=E4APAMMHVJE4N",
