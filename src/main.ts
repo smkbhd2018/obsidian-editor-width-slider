@@ -149,7 +149,7 @@ export default class ImageWidthSlider extends Plugin {
 		document.getElementsByTagName("head")[0].appendChild(css);
 
 		// add the main class
-                document.body.classList.add('additional-image-css');
+                document.body.classList.add('image-width-slider-target');
 
 		// update the style with the settings-dependent styles
         // this.updateImageStyle();
@@ -158,36 +158,28 @@ export default class ImageWidthSlider extends Plugin {
 	
 	// update the styles (at the start, or as the result of a settings change)
         updateImageStyle() {
-		// get the custom css element
                 const styleElement = document.getElementById('additional-image-css');
                 if (!styleElement) throw "additional-image-css element not found!";
-		else {
-
+                const unit = this.settings.unit;
                 styleElement.innerText = `
-                        .markdown-preview-view img {
-                                max-width: ${this.settings.sliderPercentage}% !important;
+                        .image-width-slider-target img {
+                                width: ${this.settings.sliderPercentage}${unit} !important;
                         }
                 `;
-
-		}
-	}
+        }
 
 
 	// update the styles (at the start, or as the result of a settings change)
         updateImageStyleYAMLHelper(imageWidth: any) {
-		// get the custom css element
                 const styleElement = document.getElementById('additional-image-css');
                 if (!styleElement) throw "additional-image-css element not found!";
-		else {
-
+                const unit = this.settings.unit;
                 styleElement.innerText = `
-                        .markdown-preview-view img {
-                                max-width: ${imageWidth}vw !important;
+                        .image-width-slider-target img {
+                                width: ${imageWidth}${unit} !important;
                         }
                 `;
-
-		}
-	}
+        }
 
 	pattern = /^(?:[0-9]{1,2}|100)$/;
 
