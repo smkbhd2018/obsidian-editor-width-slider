@@ -24,10 +24,11 @@ export default class ImageWidthSlider extends Plugin {
 	// most important function, this gets executed everytime the plugin is first 
 	// loaded, e.g. when obsidian starts, or when the user just installed the 
 	// plugin
-	async onload() {
-		await this.loadSettings();
-		
-		this.addStyle();
+        async onload() {
+                await this.loadSettings();
+
+                this.addStyle();
+                this.applySliderEffect();
 
                 this.app.workspace.on('file-open', () => {
                         this.updateImageStyleYAML();
@@ -106,16 +107,28 @@ export default class ImageWidthSlider extends Plugin {
 		});
 
 		// Add a click event listener to the slider value text
-		sliderValueText.addEventListener('click', () => {
+                sliderValueText.addEventListener('click', () => {
                         this.resetImageWidth()
-		});
+                });
 
-		// Create the status bar item
-		const statusBarItemEl = this.addStatusBarItem();
-		// Append the slider to the status bar item
-		statusBarItemEl.appendChild(slider);
-		statusBarItemEl.appendChild(sliderValueText);
-	}
+                const toggleButton = document.createElement('button');
+                toggleButton.textContent = this.settings.enabled ? 'Disable' : 'Enable';
+                toggleButton.classList.add('image-width-slider-toggle');
+                toggleButton.style.marginLeft = '6px';
+                toggleButton.addEventListener('click', () => {
+                        this.settings.enabled = !this.settings.enabled;
+                        toggleButton.textContent = this.settings.enabled ? 'Disable' : 'Enable';
+                        this.applySliderEffect();
+                        this.saveSettings();
+                });
+
+                // Create the status bar item
+                const statusBarItemEl = this.addStatusBarItem();
+                // Append the slider to the status bar item
+                statusBarItemEl.appendChild(slider);
+                statusBarItemEl.appendChild(sliderValueText);
+                statusBarItemEl.appendChild(toggleButton);
+        }
 	// ---------------------------- SLIDER -------------------------------------
 
         cleanUpResources() {
@@ -142,52 +155,62 @@ export default class ImageWidthSlider extends Plugin {
 	}
 
 	// add element that contains all of the styling elements we need
-	addStyle() {
-		// add a css block for our settings-dependent styles
+        addStyle() {
+                // add a css block for our settings-dependent styles
                 const css = document.createElement('style');
                 css.id = 'additional-image-css';
-		document.getElementsByTagName("head")[0].appendChild(css);
+                document.getElementsByTagName("head")[0].appendChild(css);
 
-		// add the main class
-                document.body.classList.add('additional-image-css');
-
-		// update the style with the settings-dependent styles
+                // update the style with the settings-dependent styles
         // this.updateImageStyle();
-	}
+        }
+
+        applySliderEffect() {
+                const styleElement = document.getElementById('additional-image-css');
+                if (!styleElement) return;
+
+                if (this.settings.enabled) {
+                        document.body.classList.add('image-width-slider-target');
+                        this.updateImageStyle();
+                } else {
+                        document.body.classList.remove('image-width-slider-target');
+                        styleElement.innerText = '';
+                }
+        }
 
 	
 	// update the styles (at the start, or as the result of a settings change)
         updateImageStyle() {
-		// get the custom css element
                 const styleElement = document.getElementById('additional-image-css');
                 if (!styleElement) throw "additional-image-css element not found!";
-		else {
-
+                if (!this.settings.enabled) {
+                        styleElement.innerText = '';
+                        return;
+                }
+                const unit = this.settings.unit;
                 styleElement.innerText = `
-                        .markdown-preview-view img {
-                                max-width: ${this.settings.sliderPercentage}% !important;
+                        .image-width-slider-target img {
+                                width: ${this.settings.sliderPercentage}${unit} !important;
                         }
                 `;
-
-		}
-	}
+        }
 
 
 	// update the styles (at the start, or as the result of a settings change)
         updateImageStyleYAMLHelper(imageWidth: any) {
-		// get the custom css element
                 const styleElement = document.getElementById('additional-image-css');
                 if (!styleElement) throw "additional-image-css element not found!";
-		else {
-
+                if (!this.settings.enabled) {
+                        styleElement.innerText = '';
+                        return;
+                }
+                const unit = this.settings.unit;
                 styleElement.innerText = `
-                        .markdown-preview-view img {
-                                max-width: ${imageWidth}vw !important;
+                        .image-width-slider-target img {
+                                width: ${imageWidth}${unit} !important;
                         }
                 `;
-
-		}
-	}
+        }
 
 	pattern = /^(?:[0-9]{1,2}|100)$/;
 
