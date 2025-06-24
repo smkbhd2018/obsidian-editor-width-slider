@@ -6,10 +6,11 @@
 - Adjust the width of images using a slider in the status bar.
 - Increase or decrease image sizes to customize your viewing experience.
 - Simple and intuitive interface for easy usage.
+- Choose between percent, pixel, or viewport units for the slider.
 
 ### Feature: Custom for Individual Files using YAML
 
-With the Obsidian Image Width Slider Plugin, you can customize image widths for individual files by specifying an "image-width" field in the YAML frontmatter of your notes. This feature allows you to have different image widths for different files, giving you greater flexibility in your note-taking and editing experience.
+With the Obsidian Image Width Slider Plugin, you can customize image widths for individual files by specifying an "image-width" field in the YAML frontmatter of your notes. This feature allows you to have different image widths for different files, giving you greater flexibility in your note-taking and editing experience. The width value respects the unit configured in the plugin settings.
 
 #### Setting the Image Width
 
@@ -17,7 +18,7 @@ To set a custom image width for a specific file, follow these steps:
 
 1. Open the note for which you want to customize the image width.
 
-2. In the YAML frontmatter section at the top of the note, add an "image-width" field. The value of this field should be a number between 0 and 100, representing the desired image width as a percentage of the viewport width. For example:
+2. In the YAML frontmatter section at the top of the note, add an "image-width" field. The value of this field should be a number. It will use the unit selected in the plugin settings. For example:
 
    ```yaml
    ---
@@ -25,6 +26,7 @@ To set a custom image width for a specific file, follow these steps:
    image-width: 75
    ---
    ```
+   The above example sets the width to 75 using the unit selected in the plugin settings.
 
 ## Demo
 
@@ -46,6 +48,7 @@ To set a custom image width for a specific file, follow these steps:
 1. Once the plugin is enabled, you will see a slider in the status bar.
 2. Drag the slider to the left or right to increase or decrease the width of images.
 3. The changes will be applied to all images in the current note in real-time.
+4. Use the plugin settings to switch between `%`, `px`, or `vw` units.
 
 ## Feedback and Support
 

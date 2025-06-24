@@ -7,7 +7,7 @@ export class WarningModal extends Modal {
 
   onOpen() {
     const { contentEl } = this;
-    contentEl.setText("Image width must be a number from 0 to 100!");
+    contentEl.setText("Image width must be a number!");
   }
 
   onClose() {

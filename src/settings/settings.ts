@@ -12,7 +12,8 @@ import { ImageWidthSliderSettings } from 'src/types/settings';
 export const DEFAULT_SETTINGS: ImageWidthSliderSettings = {
         sliderPercentage: '50',
         sliderPercentageDefault: '50',
-        sliderWidth: '150'
+        sliderWidth: '150',
+        sliderUnit: '%'
 };
 // ---------------------------- Storing Information ----------------------------
 
@@ -41,17 +42,34 @@ export class ImageWidthSliderSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}));
 
-		new Setting(containerEl)
-			.setName('Slider Default Percentage')
-			.setDesc('What do you want the default percentage of the slider to be?')
-			.addText(text => text
-				.setPlaceholder('Slider width in px')
-				.setValue(this.plugin.settings.sliderPercentageDefault)
-				.onChange(async (value) => {
-					this.plugin.settings.sliderPercentageDefault = value;
-					this.plugin.updateSliderStyle();
-					await this.plugin.saveSettings();
-				}));
+                new Setting(containerEl)
+                        .setName('Slider Default Percentage')
+                        .setDesc('What do you want the default percentage of the slider to be?')
+                        .addText(text => text
+                                .setPlaceholder('Slider width in px')
+                                .setValue(this.plugin.settings.sliderPercentageDefault)
+                                .onChange(async (value) => {
+                                        this.plugin.settings.sliderPercentageDefault = value;
+                                        this.plugin.updateSliderStyle();
+                                        await this.plugin.saveSettings();
+                                }));
+
+                new Setting(containerEl)
+                        .setName('Measurement Unit')
+                        .setDesc('Unit used for adjusting image width')
+                        .addDropdown(drop => drop
+                                .addOptions({
+                                        '%': 'Percent (%)',
+                                        'px': 'Pixels (px)',
+                                        'vw': 'Viewport width (vw)'
+                                })
+                                .setValue(this.plugin.settings.sliderUnit)
+                                .onChange(async (value) => {
+                                        this.plugin.settings.sliderUnit = value;
+                                        this.plugin.updateSliderStyle();
+                                        this.plugin.updateImageStyle();
+                                        await this.plugin.saveSettings();
+                                }));
 
         new Setting(containerEl)
             .setName('Note:')

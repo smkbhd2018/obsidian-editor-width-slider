@@ -3,4 +3,5 @@ export interface ImageWidthSliderSettings {
         sliderPercentage: string;
         sliderPercentageDefault: string;
         sliderWidth: string;
+        sliderUnit: string;
 }

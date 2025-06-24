@@ -37,6 +37,8 @@ export default class ImageWidthSlider extends Plugin {
 
                 this.addSettingTab(new ImageWidthSliderSettingTab(this.app, this));
 
+                this.updateImageStyleYAML();
+
 	}
 
 	// async onLoadFile(file: TFile) {
@@ -55,29 +57,27 @@ export default class ImageWidthSlider extends Plugin {
 		const slider = document.createElement('input');
                 slider.classList.add('image-width-slider');
                 slider.id = 'image-width-slider';
-		slider.type = 'range';
-		slider.min = '0';
-		slider.max = '100';
-		slider.value = this.settings.sliderPercentage;
+                slider.type = 'range';
+                slider.min = '0';
+                slider.max = this.settings.sliderUnit === 'px' ? '800' : '100';
+                slider.value = this.settings.sliderPercentage;
 		// Adjust the width value as needed
 		slider.style.width = this.settings.sliderWidth + 'px'; 
 		
 		// Add event listener to the slider
-		slider.addEventListener('input', (event) => {
-			const value = parseInt(slider.value);
-			// const widthInPixels = 400 + value * 10;
-			this.settings.sliderPercentage = value.toString();
+                slider.addEventListener('input', () => {
+                        const value = parseInt(slider.value);
+                        this.settings.sliderPercentage = value.toString();
 
-			this.saveSettings();
+                        this.saveSettings();
                         this.updateImageStyle();
-			sliderValueText.textContent = value.toString();
-			console.log('Slider value:', value);
-			// Perform any actions based on the slider value
-		});
+                        sliderValueText.textContent = `${value}${this.settings.sliderUnit}`;
+                        console.log('Slider value:', value);
+                });
 
 		// Create the text element for displaying the slider value
 		const sliderValueText = document.createElement('span');
-		sliderValueText.textContent = slider.value;
+                sliderValueText.textContent = `${slider.value}${this.settings.sliderUnit}`;
                 sliderValueText.classList.add('image-width-slider-value');
                 sliderValueText.id = 'image-width-slider-value';
 
@@ -133,7 +133,7 @@ export default class ImageWidthSlider extends Plugin {
 		if (slider) {
 			if (sliderValue) {
 				slider.value = this.settings.sliderPercentageDefault;
-				sliderValue.textContent = this.settings.sliderPercentageDefault.toString();
+                                sliderValue.textContent = `${this.settings.sliderPercentageDefault}${this.settings.sliderUnit}`;
 			}
 		}
 
@@ -146,10 +146,10 @@ export default class ImageWidthSlider extends Plugin {
 		// add a css block for our settings-dependent styles
                 const css = document.createElement('style');
                 css.id = 'additional-image-css';
-		document.getElementsByTagName("head")[0].appendChild(css);
+                document.getElementsByTagName("head")[0].appendChild(css);
 
-		// add the main class
-                document.body.classList.add('additional-image-css');
+                // add the main class
+                document.body.classList.add('image-width-slider-active');
 
 		// update the style with the settings-dependent styles
         // this.updateImageStyle();
@@ -164,8 +164,8 @@ export default class ImageWidthSlider extends Plugin {
 		else {
 
                 styleElement.innerText = `
-                        .markdown-preview-view img {
-                                max-width: ${this.settings.sliderPercentage}% !important;
+                        body.image-width-slider-active .markdown-preview-view img {
+                                width: ${this.settings.sliderPercentage}${this.settings.sliderUnit} !important;
                         }
                 `;
 
@@ -181,15 +181,15 @@ export default class ImageWidthSlider extends Plugin {
 		else {
 
                 styleElement.innerText = `
-                        .markdown-preview-view img {
-                                max-width: ${imageWidth}vw !important;
+                        body.image-width-slider-active .markdown-preview-view img {
+                                width: ${imageWidth}${this.settings.sliderUnit} !important;
                         }
                 `;
 
 		}
 	}
 
-	pattern = /^(?:[0-9]{1,2}|100)$/;
+        pattern = /^[0-9]{1,3}$/;
 
 	validateString(inputString: string): boolean {
 		return this.pattern.test(inputString);
@@ -209,7 +209,7 @@ export default class ImageWidthSlider extends Plugin {
                                                                 this.updateImageStyleYAMLHelper(metadata.frontmatter["image-width"]);
                                                         } else {
                                                                 new WarningModal(this.app).open();
-                                                                throw new Error("Image width must be a number from 0 to 100.");
+                                                                throw new Error("Image width must be a number.");
                                                         }
                                                 } else {
                                                         this.updateImageStyle();
@@ -226,18 +226,23 @@ export default class ImageWidthSlider extends Plugin {
 	}
 
 	// update the styles (at the start, or as the result of a settings change)
-	updateSliderStyle() {
-		// get the custom css element
+        updateSliderStyle() {
                 const styleElements = document.getElementsByClassName('image-width-slider');
-		
-		if (styleElements.length === 0) {
+
+                if (styleElements.length === 0) {
                         throw new Error("image-width-slider-value element not found!");
-		} else {
-			// Access the first element in the collection and modify its style
-			const styleElement = styleElements[0] as HTMLElement;
-			styleElement.style.width = this.settings.sliderWidth + 'px';
-		}
-	}
+                } else {
+                        const styleElement = styleElements[0] as HTMLInputElement;
+                        styleElement.style.width = this.settings.sliderWidth + 'px';
+                        styleElement.max = this.settings.sliderUnit === 'px' ? '800' : '100';
+                }
+
+                const textElement = document.getElementById('image-width-slider-value');
+                if (textElement) {
+                        textElement.textContent = `${this.settings.sliderPercentage}${this.settings.sliderUnit}`;
+                }
+                this.updateImageStyle();
+        }
 
 
 	// Method to load settings
