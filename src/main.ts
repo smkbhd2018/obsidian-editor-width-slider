@@ -185,11 +185,11 @@ export default class ImageWidthSlider extends Plugin {
                 const styleElement = document.getElementById('additional-image-css');
                 if (!styleElement) throw "additional-image-css element not found!";
                 const unit = this.settings.unit;
-                styleElement.innerText = `
-                        .image-width-slider-target img {
-                                width: ${this.settings.sliderPercentage}${unit} !important;
-                        }
-                `;
+styleElement.innerText = `
+.image-width-slider-target img:not(.oit-img-view):not(.oit-img):not(.gallery-img) {
+width: ${this.settings.sliderPercentage}${unit} !important;
+}
+`;
         }
 
 
@@ -202,7 +202,7 @@ export default class ImageWidthSlider extends Plugin {
                 if (!styleElement) throw "additional-image-css element not found!";
                 const unit = this.settings.unit;
                 styleElement.innerText = `
-                        .image-width-slider-target img {
+                        .image-width-slider-target img:not(.oit-img-view):not(.oit-img):not(.gallery-img) {
                                 width: ${imageWidth}${unit} !important;
                         }
                 `;
