@@ -4,22 +4,23 @@ import {
 	Setting,
 } from 'obsidian';
 
-import EditorWidthSlider from "../main";
-import { EditorWidthSliderSettings } from 'src/types/settings';
+import ImageWidthSlider from "../main";
+import { ImageWidthSliderSettings } from 'src/types/settings';
 
 // ---------------------------- Storing Information ----------------------------
 // the default value of the thing you want to store 
-export const DEFAULT_SETTINGS: EditorWidthSliderSettings = {
-	sliderPercentage: '20',
-	sliderPercentageDefault: '20',
-	sliderWidth: '150'
-}
+export const DEFAULT_SETTINGS: ImageWidthSliderSettings = {
+        sliderPercentage: '50',
+        sliderPercentageDefault: '50',
+        sliderWidth: '150',
+        sliderUnit: '%'
+};
 // ---------------------------- Storing Information ----------------------------
 
-export class EditorWidthSliderSettingTab extends PluginSettingTab {
-	plugin: EditorWidthSlider;
+export class ImageWidthSliderSettingTab extends PluginSettingTab {
+        plugin: ImageWidthSlider;
 
-	constructor(app: App, plugin: EditorWidthSlider) {
+        constructor(app: App, plugin: ImageWidthSlider) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
@@ -41,21 +42,38 @@ export class EditorWidthSliderSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}));
 
-		new Setting(containerEl)
-			.setName('Slider Default Percentage')
-			.setDesc('What do you want the default percentage of the slider to be?')
-			.addText(text => text
-				.setPlaceholder('Slider width in px')
-				.setValue(this.plugin.settings.sliderPercentageDefault)
-				.onChange(async (value) => {
-					this.plugin.settings.sliderPercentageDefault = value;
-					this.plugin.updateSliderStyle();
-					await this.plugin.saveSettings();
-				}));
+                new Setting(containerEl)
+                        .setName('Slider Default Percentage')
+                        .setDesc('What do you want the default percentage of the slider to be?')
+                        .addText(text => text
+                                .setPlaceholder('Slider width in px')
+                                .setValue(this.plugin.settings.sliderPercentageDefault)
+                                .onChange(async (value) => {
+                                        this.plugin.settings.sliderPercentageDefault = value;
+                                        this.plugin.updateSliderStyle();
+                                        await this.plugin.saveSettings();
+                                }));
+
+                new Setting(containerEl)
+                        .setName('Measurement Unit')
+                        .setDesc('Unit used for adjusting image width')
+                        .addDropdown(drop => drop
+                                .addOptions({
+                                        '%': 'Percent (%)',
+                                        'px': 'Pixels (px)',
+                                        'vw': 'Viewport width (vw)'
+                                })
+                                .setValue(this.plugin.settings.sliderUnit)
+                                .onChange(async (value) => {
+                                        this.plugin.settings.sliderUnit = value;
+                                        this.plugin.updateSliderStyle();
+                                        this.plugin.updateImageStyle();
+                                        await this.plugin.saveSettings();
+                                }));
 
         new Setting(containerEl)
             .setName('Note:')
-            .setDesc('The field should be named "editor-width" in the YAML frontmatter of the note in order to customize the editor width of that repective note. It won\'t work globally for all notes unless you specify it in each note\'s frontmatter.');
+            .setDesc('The field should be named "image-width" in the YAML frontmatter of the note in order to customize the image width of that respective note. It won\'t work globally for all notes unless you specify it in each note\'s frontmatter.');
 
 	}
 }
