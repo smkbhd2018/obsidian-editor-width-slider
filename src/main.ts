@@ -190,6 +190,14 @@ export default class ImageWidthSlider extends Plugin {
                         .map(c => c.trim())
                         .filter(c => c);
                 if (!excludedClasses.includes('oit')) excludedClasses.push('oit');
+                const excludedClasses = this.settings.excludedParentClasses
+                        .split(',')
+                        .map(c => c.trim())
+                        .filter(c => c);
+                if (!excludedClasses.includes('oit')) excludedClasses.push('oit');
+                        .map(c => c.trim())
+                        .filter(c => c);
+                if (!excludedClasses.includes('oit')) excludedClasses.push('oit');
                 const excludeRules = excludedClasses.map(cls => `.image-width-slider-target .${cls} img {\n                                width: auto !important;\n                        }`).join('\n');
                 styleElement.innerText = `
                         .image-width-slider-target img {
